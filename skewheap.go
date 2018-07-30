@@ -1,6 +1,10 @@
 // Skew heaps implement a priority queue (min heap) using a binary heap which
-// is continually rebalanced with each Put and Take operation. Skew heaps have
+// is continually rebalanced with each Put and Take operation.  Skew heaps have
 // an ammortized performance slighter better than O(log n).
+//
+// The key feature of a skew heap is that it may be quickly and trivially
+// merged with another skew heap.  All heap operations are defined in terms of
+// the merge operation.
 //
 // For more details, see https://en.wikipedia.org/wiki/Skew_heap
 package skewheap
