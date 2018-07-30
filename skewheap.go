@@ -6,6 +6,8 @@
 // merged with another skew heap.  All heap operations are defined in terms of
 // the merge operation.
 //
+// Mutable operations on the skew heap are atomic.
+//
 // For more details, see https://en.wikipedia.org/wiki/Skew_heap
 package skewheap
 
@@ -27,13 +29,16 @@ type node struct {
 
 func (n node) priority() int { return n.value.Priority() }
 
-// SkewHeap is the base interface type. It's only exposed member is Size.
+// SkewHeap is the base interface type
 type SkewHeap struct {
 	// The number of items in the queue.
-	Size int
+	size int
 	root *node
 	sem  chan bool
 }
+
+// Returns the number of items in the queue
+func (heap SkewHeap) Size() int { return heap.size }
 
 // Sort interface
 type byPriority []*node
@@ -42,8 +47,9 @@ func (a byPriority) Len() int           { return len(a) }
 func (a byPriority) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a byPriority) Less(i, j int) bool { return a[i].priority() < a[j].priority() }
 
+// Initializes and returns a new *SkewHeap.
 func New() *SkewHeap {
-	heap := &SkewHeap{Size: 0, root: nil, sem: make(chan bool, 1)}
+	heap := &SkewHeap{size: 0, root: nil, sem: make(chan bool, 1)}
 	heap.unlock()
 	return heap
 }
@@ -81,10 +87,10 @@ func (node node) explain(depth int) {
 // Debugging routine that emits a description of the skew heap and its internal
 // structure to stdout.
 func (heap SkewHeap) Explain() {
-	fmt.Printf("Heap<Size:%d>\n", heap.Size)
+	fmt.Printf("Heap<Size:%d>\n", heap.Size())
 	fmt.Printf("-Root:\n")
 
-	if heap.Size > 0 {
+	if heap.Size() > 0 {
 		heap.root.explain(1)
 	}
 
@@ -163,7 +169,7 @@ func (heap SkewHeap) Merge(other SkewHeap) *SkewHeap {
 
 	go func() {
 		heap.lock()
-		sizeA = heap.Size
+		sizeA = heap.Size()
 		rootA = heap.root.copyNode()
 		heap.unlock()
 		ready <- true
@@ -171,7 +177,7 @@ func (heap SkewHeap) Merge(other SkewHeap) *SkewHeap {
 
 	go func() {
 		other.lock()
-		sizeB = other.Size
+		sizeB = other.Size()
 		rootB = other.root.copyNode()
 		other.unlock()
 		ready <- true
@@ -181,7 +187,7 @@ func (heap SkewHeap) Merge(other SkewHeap) *SkewHeap {
 	<-ready
 
 	newHeap := New()
-	newHeap.Size += sizeA + sizeB
+	newHeap.size += sizeA + sizeB
 	newHeap.root = rootA.merge(rootB)
 
 	return newHeap
@@ -197,13 +203,13 @@ func (heap *SkewHeap) Put(value SkewItem) {
 
 	heap.lock()
 
-	if heap.Size == 0 {
+	if heap.Size() == 0 {
 		heap.root = newNode
 	} else {
 		heap.root = heap.root.merge(newNode)
 	}
 
-	heap.Size++
+	heap.size++
 
 	heap.unlock()
 }
@@ -212,10 +218,10 @@ func (heap *SkewHeap) Put(value SkewItem) {
 func (heap *SkewHeap) Take() (SkewItem, error) {
 	heap.lock()
 
-	if heap.Size > 0 {
+	if heap.Size() > 0 {
 		value := heap.root.value
 		heap.root = heap.root.left.merge(heap.root.right)
-		heap.Size--
+		heap.size--
 		heap.unlock()
 		return value, nil
 	} else {
@@ -226,7 +232,7 @@ func (heap *SkewHeap) Take() (SkewItem, error) {
 
 // Returns the value highest priority from the heap without removing it.
 func (heap *SkewHeap) Top() (SkewItem, error) {
-	if heap.Size > 0 {
+	if heap.Size() > 0 {
 		return heap.root.value, nil
 	} else {
 		return nil, errors.New("empty")

@@ -29,13 +29,13 @@ func is(t *testing.T, err error, got int, expected int, msg string) bool {
 
 func TestPut(t *testing.T) {
 	heap := skewheap.New()
-	is(t, nil, heap.Size, 0, "initial heap Size")
+	is(t, nil, heap.Size(), 0, "initial heap Size()")
 
 	heap.Put(IntItem(42))
-	is(t, nil, heap.Size, 1, "put 1")
+	is(t, nil, heap.Size(), 1, "put 1")
 
 	heap.Put(IntItem(10))
-	is(t, nil, heap.Size, 2, "put 2")
+	is(t, nil, heap.Size(), 2, "put 2")
 }
 
 func TestTake(t *testing.T) {
@@ -95,7 +95,7 @@ func TestMerge(t *testing.T) {
 
 	c := a.Merge(*b)
 
-	is(t, nil, b.Size, 5, "b.Size remains intact")
+	is(t, nil, b.Size(), 5, "b.Size() remains intact")
 	for _, i := range bInts {
 		top, err1 := b.Top()
 		is(t, err1, int(top.(IntItem)), i, fmt.Sprintf("b.Top() == %d", i))
@@ -104,7 +104,7 @@ func TestMerge(t *testing.T) {
 		is(t, err2, int(val.(IntItem)), i, fmt.Sprintf("b.Take() == %d", i))
 	}
 
-	is(t, nil, c.Size, 10, "c.Size is a.Size + b.Size")
+	is(t, nil, c.Size(), 10, "c.Size() is a.Size() + b.Size()")
 	for _, i := range cInts {
 		top, err1 := c.Top()
 		is(t, err1, int(top.(IntItem)), i, fmt.Sprintf("c.Top() == %d", i))
@@ -113,7 +113,7 @@ func TestMerge(t *testing.T) {
 		is(t, err2, int(val.(IntItem)), i, fmt.Sprintf("c.Take() == %d", i))
 	}
 
-	is(t, nil, a.Size, 5, "a.Size remains intact")
+	is(t, nil, a.Size(), 5, "a.Size() remains intact")
 	for _, i := range aInts {
 		top, err1 := a.Top()
 		is(t, err1, int(top.(IntItem)), i, fmt.Sprintf("a.Top() == %d", i))

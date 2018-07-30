@@ -10,6 +10,8 @@ The key feature of a skew heap is that it may be quickly and trivially merged
 with another skew heap. All heap operations are defined in terms of the merge
 operation.
 
+Mutable operations on the skew heap are atomic.
+
 For more details, see https://en.wikipedia.org/wiki/Skew_heap
 
 ## Usage
@@ -18,18 +20,17 @@ For more details, see https://en.wikipedia.org/wiki/Skew_heap
 
 ```go
 type SkewHeap struct {
-	// The number of items in the queue.
-	Size int
 }
 ```
 
-SkewHeap is the base interface type. It's only exposed member is Size.
+SkewHeap is the base interface type
 
 #### func  New
 
 ```go
 func New() *SkewHeap
 ```
+Initializes and returns a new *SkewHeap.
 
 #### func (SkewHeap) Explain
 
@@ -53,6 +54,13 @@ recursively copies the structure of each input heap.
 func (heap *SkewHeap) Put(value SkewItem)
 ```
 Inserts a value into the heap.
+
+#### func (SkewHeap) Size
+
+```go
+func (heap SkewHeap) Size() int
+```
+Returns the number of items in the queue
 
 #### func (*SkewHeap) Take
 
