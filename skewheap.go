@@ -37,7 +37,7 @@ type SkewHeap struct {
 	sem  chan bool
 }
 
-// Returns the number of items in the queue
+// Returns the number of items in the queue.
 func (heap SkewHeap) Size() int { return heap.size }
 
 // Sort interface

@@ -60,7 +60,7 @@ Inserts a value into the heap.
 ```go
 func (heap SkewHeap) Size() int
 ```
-Returns the number of items in the queue
+Returns the number of items in the queue.
 
 #### func (*SkewHeap) Take
 
