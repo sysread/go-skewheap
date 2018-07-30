@@ -88,18 +88,18 @@ func (heap SkewHeap) Explain() {
 }
 
 // Merges two nodes destructively
-func (self *node) merge(other *node) *node {
-	if self == nil {
+func (heap *node) merge(other *node) *node {
+	if heap == nil {
 		return other
 	}
 
 	if other == nil {
-		return self
+		return heap
 	}
 
 	// Cut the right subtree from each path and store the remaining left subtrees
 	// in nodes.
-	todo := []*node{self, other}
+	todo := []*node{heap, other}
 	nodes := []*node{}
 
 	for len(todo) > 0 {
@@ -151,17 +151,17 @@ func (src *node) copyNode() *node {
 
 // Non-destructively combines two heaps into a new heap. Note that Merge
 // recursively copies the structure of each input heap.
-func (self SkewHeap) Merge(other SkewHeap) *SkewHeap {
+func (heap SkewHeap) Merge(other SkewHeap) *SkewHeap {
 	ready := make(chan bool, 2)
 
 	var rootA, rootB *node
 	var sizeA, sizeB int
 
 	go func() {
-		self.lock()
-		sizeA = self.Size
-		rootA = self.root.copyNode()
-		self.unlock()
+		heap.lock()
+		sizeA = heap.Size
+		rootA = heap.root.copyNode()
+		heap.unlock()
 		ready <- true
 	}()
 
