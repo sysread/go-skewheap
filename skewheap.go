@@ -14,8 +14,9 @@ package skewheap
 import "errors"
 import "fmt"
 import "sort"
+import "sync"
 
-// The skew heap can queue any item that can provide a relative priority value
+// The SkewHeap can queue any item that can provide a relative priority value
 // by implementing the Priority() method. A lower value indicates a higher
 // priority in the queue.
 type SkewItem interface {
@@ -32,9 +33,9 @@ func (n node) priority() int { return n.value.Priority() }
 // SkewHeap is the base interface type
 type SkewHeap struct {
 	// The number of items in the queue.
-	size int
-	root *node
-	sem  chan bool
+	size  int
+	mutex *sync.Mutex
+	root  *node
 }
 
 // Returns the number of items in the queue.
@@ -49,14 +50,18 @@ func (a byPriority) Less(i, j int) bool { return a[i].priority() < a[j].priority
 
 // Initializes and returns a new *SkewHeap.
 func New() *SkewHeap {
-	heap := &SkewHeap{size: 0, root: nil, sem: make(chan bool, 1)}
-	heap.unlock()
+	heap := &SkewHeap{
+		size:  0,
+		mutex: &sync.Mutex{},
+		root:  nil,
+	}
+
 	return heap
 }
 
 // Voluntarily locks the data structure while modifying it.
-func (heap *SkewHeap) lock()   { <-heap.sem }
-func (heap *SkewHeap) unlock() { heap.sem <- true }
+func (heap *SkewHeap) lock()   { heap.mutex.Lock() }
+func (heap *SkewHeap) unlock() { heap.mutex.Unlock() }
 
 // Indents explain()
 func indent(depth int) {
@@ -167,6 +172,11 @@ func (heap SkewHeap) Merge(other SkewHeap) *SkewHeap {
 	var rootA, rootB *node
 	var sizeA, sizeB int
 
+	// Because each heap may be used by other go routines, locking their mutexes
+	// and copying their contents is done in another routine, and this thread
+	// blocks on receiving a signal from the locking thread. This helps to avoid
+	// unnecessary blocking by attempting to lock two mutexes serially.
+
 	go func() {
 		heap.lock()
 		sizeA = heap.Size()
@@ -183,6 +193,7 @@ func (heap SkewHeap) Merge(other SkewHeap) *SkewHeap {
 		ready <- true
 	}()
 
+	// Wait on copies to be made
 	<-ready
 	<-ready
 
