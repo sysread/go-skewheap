@@ -235,17 +235,17 @@ func (heap *SkewHeap) Take() (SkewItem, error) {
 		heap.size--
 		heap.unlock()
 		return value, nil
-	} else {
-		heap.unlock()
-		return nil, errors.New("empty")
 	}
+
+	heap.unlock()
+	return nil, errors.New("empty")
 }
 
 // Returns the value highest priority from the heap without removing it.
 func (heap *SkewHeap) Top() (SkewItem, error) {
 	if heap.Size() > 0 {
 		return heap.root.value, nil
-	} else {
-		return nil, errors.New("empty")
 	}
+
+	return nil, errors.New("empty")
 }
