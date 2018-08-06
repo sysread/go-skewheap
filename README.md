@@ -1,6 +1,6 @@
-# skewheap
+# skewer
 --
-    import "github.com/sysread/skewheap"
+    import "github.com/sysread/skewer"
 
 Skew heaps implement a priority queue (min heap) using a binary heap which is
 continually rebalanced with each Put and Take operation. Skew heaps have an
@@ -84,6 +84,6 @@ type SkewItem interface {
 }
 ```
 
-The skew heap can queue any item that can provide a relative priority value by
+The SkewHeap can queue any item that can provide a relative priority value by
 implementing the Priority() method. A lower value indicates a higher priority in
 the queue.

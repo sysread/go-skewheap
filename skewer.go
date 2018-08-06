@@ -9,7 +9,7 @@
 // Mutable operations on the skew heap are atomic.
 //
 // For more details, see https://en.wikipedia.org/wiki/Skew_heap
-package skewheap
+package skewer
 
 import "errors"
 import "fmt"

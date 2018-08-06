@@ -1,10 +1,10 @@
-package skewheap_test
+package skewer_test
 
 import "fmt"
 import "math/rand"
 import "sort"
 import "testing"
-import "github.com/sysread/skewheap"
+import "github.com/sysread/skewer"
 
 type IntItem int
 
