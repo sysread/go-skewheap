@@ -1,3 +1,6 @@
+[![Documentation](https://godoc.org/github.com/sysread/skewer?status.svg)](http://godoc.org/github.com/sysread/skewer)
+[![Go Report Card](https://goreportcard.com/badge/github.com/sysread/skewer)](https://goreportcard.com/report/github.com/sysread/skewer)
+
 # skewer
 --
     import "github.com/sysread/skewer"
