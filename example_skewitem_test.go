@@ -1,8 +1,8 @@
-package skewheap_test
+package skewer_test
 
 import (
 	"fmt"
-	"github.com/sysread/skewheap"
+	"github.com/sysread/skewer"
 )
 
 // Define a type that implements SkewItem. A SkewItem need only provide a
@@ -18,7 +18,7 @@ func (item Item) Priority() int {
 }
 
 func Example() {
-	heap := skewheap.New()
+	heap := skewer.New()
 
 	fmt.Println(heap.Top())
 

@@ -28,7 +28,7 @@ func is(t *testing.T, err error, got int, expected int, msg string) bool {
 }
 
 func TestPut(t *testing.T) {
-	heap := skewheap.New()
+	heap := skewer.New()
 	is(t, nil, heap.Size(), 0, "initial heap Size()")
 
 	heap.Put(IntItem(42))
@@ -39,7 +39,7 @@ func TestPut(t *testing.T) {
 }
 
 func TestTake(t *testing.T) {
-	heap := skewheap.New()
+	heap := skewer.New()
 
 	ints := rand.Perm(50)
 
@@ -83,7 +83,7 @@ func TestMerge(t *testing.T) {
 	bInts := []int{5, 6, 7, 8, 9}
 	cInts := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
 
-	a, b := skewheap.New(), skewheap.New()
+	a, b := skewer.New(), skewer.New()
 
 	for _, i := range aInts {
 		a.Put(IntItem(i))
