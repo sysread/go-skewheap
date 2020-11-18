@@ -107,62 +107,62 @@ func (heap SkewHeap) Explain() {
 }
 
 // Merges two nodes destructively
-func (heap *skewNode) merge(other *skewNode) *skewNode {
-	if heap == nil {
+func (node *skewNode) merge(other *skewNode) *skewNode {
+	if node == nil {
 		return other
 	}
 
 	if other == nil {
-		return heap
+		return node
 	}
 
 	// Cut the right subtree from each path and store the remaining left subtrees
 	// in nodes.
-	todo := [](*skewNode){heap, other}
+	todo := [](*skewNode){node, other}
 	nodes := [](*skewNode){}
 
 	for len(todo) > 0 {
-		node := todo[0]
+		last := todo[0]
 		todo = todo[1:]
 
-		if node.right != nil {
-			todo = append(todo, node.right)
-			node.right = nil
+		if last.right != nil {
+			todo = append(todo, last.right)
+			last.right = nil
 		}
 
-		nodes = append(nodes, node)
+		nodes = append(nodes, last)
 	}
 
 	// Sort the cut paths
 	sort.Sort(byPriority(nodes))
 
 	// Recombine subtrees
-	var node *skewNode
+	var last *skewNode
 
 	for len(nodes) > 1 {
-		node, nodes = nodes[len(nodes)-1], nodes[:len(nodes)-1]
+		last, nodes = nodes[len(nodes)-1], nodes[:len(nodes)-1]
 		prev := nodes[len(nodes)-1]
 
 		// Set penultimate node's right child to its left (and only) subtree
 		prev.right = prev.left
 
 		// Set its left child to the ultimate node
-		prev.left = node
+		prev.left = last
 	}
 
 	return nodes[0]
 }
 
 // Recursively copies a node and its children
-func (src *skewNode) copyNode() *skewNode {
-	if src == nil {
+func (node *skewNode) copyNode() *skewNode {
+	if node == nil {
 		return nil
 	}
 
 	newNode := &skewNode{
-		value: src.value,
-		left:  src.left.copyNode(),
-		right: src.right.copyNode(),
+		value: node.value,
+		left:  node.left.copyNode(),
+		right: node.right.copyNode(),
 	}
 
 	return newNode
