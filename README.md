@@ -1,92 +1,61 @@
-[![Documentation](https://godoc.org/github.com/sysread/skewer?status.svg)](http://godoc.org/github.com/sysread/skewer)
-[![Go Report Card](https://goreportcard.com/badge/github.com/sysread/skewer)](https://goreportcard.com/report/github.com/sysread/skewer)
-
 # skewer
---
-    import "github.com/sysread/skewer"
 
-Skew heaps implement a priority queue (min heap) using a binary heap which is
-continually rebalanced with each Put and Take operation. Skew heaps have an
-ammortized performance slighter better than O(log n).
+[![Build Status](https://travis-ci.org/sysread/skewer.svg?branch=master)](https://travis-ci.org/sysread/skewer)
+[![codecov](https://codecov.io/gh/sysread/skewer/branch/master/graph/badge.svg)](https://codecov.io/gh/sysread/skewer)
+[![GoDoc](https://img.shields.io/badge/pkg.go.dev-doc-blue)](http://pkg.go.dev/github.com/sysread/skewer)
 
-The key feature of a skew heap is that it may be quickly and trivially merged
-with another skew heap. All heap operations are defined in terms of the merge
-operation.
+Package skewer - a mergable priority queue
+
+Skew heaps implement a priority queue (min heap) using a binary heap which
+is continually rebalanced with each Put and Take operation.  Skew heaps have
+an ammortized performance slighter better than O(log n).
+
+The key feature of a skew heap is that it may be quickly and trivially
+merged with another skew heap.  All heap operations are defined in terms of
+the merge operation.
 
 Mutable operations on the skew heap are atomic.
 
-For more details, see https://en.wikipedia.org/wiki/Skew_heap
+For more details, see [https://en.wikipedia.org/wiki/Skew_heap](https://en.wikipedia.org/wiki/Skew_heap)
 
-## Usage
+## Examples
 
-#### type SkewHeap
+```golang
+package main
 
-```go
-type SkewHeap struct {
+import (
+	"fmt"
+	"github.com/sysread/skewer"
+)
+
+// Define a type that implements SkewItem. A SkewItem need only provide a
+// single method, 'Priority', which returns the relative priority for an item
+// in the queue. This value becomes the sorting mechanism for items in the
+// heap. A lower value indicates a higher priority.
+type Item int
+
+func (item Item) Priority() int {
+	// Negate the item's value so that a higher number will be given a higher
+	// priority.
+	return 0 - int(item)
 }
-```
 
-SkewHeap is the base interface type
+func main() {
+	heap := skewer.New()
 
-#### func  New
+	fmt.Println(heap.Top())
 
-```go
-func New() *SkewHeap
-```
-Initializes and returns a new *SkewHeap.
+	for i := 0; i < 5; i++ {
+		heap.Put(Item(i))
+	}
 
-#### func (SkewHeap) Explain
+	for i := 0; i < 5; i++ {
+		fmt.Println(heap.Take())
+	}
 
-```go
-func (heap SkewHeap) Explain()
-```
-Debugging routine that emits a description of the skew heap and its internal
-structure to stdout.
-
-#### func (SkewHeap) Merge
-
-```go
-func (heap SkewHeap) Merge(other SkewHeap) *SkewHeap
-```
-Non-destructively combines two heaps into a new heap. Note that Merge
-recursively copies the structure of each input heap.
-
-#### func (*SkewHeap) Put
-
-```go
-func (heap *SkewHeap) Put(value SkewItem)
-```
-Inserts a value into the heap.
-
-#### func (SkewHeap) Size
-
-```go
-func (heap SkewHeap) Size() int
-```
-Returns the number of items in the queue.
-
-#### func (*SkewHeap) Take
-
-```go
-func (heap *SkewHeap) Take() (SkewItem, error)
-```
-Removes and returns the value with the highest priority from the heap.
-
-#### func (*SkewHeap) Top
-
-```go
-func (heap *SkewHeap) Top() (SkewItem, error)
-```
-Returns the value highest priority from the heap without removing it.
-
-#### type SkewItem
-
-```go
-type SkewItem interface {
-	Priority() int
 }
+
 ```
 
-The SkewHeap can queue any item that can provide a relative priority value by
-implementing the Priority() method. A lower value indicates a higher priority in
-the queue.
+---
+Readme created from Go doc with [goreadme](https://github.com/posener/goreadme)
