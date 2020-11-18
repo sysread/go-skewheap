@@ -1,5 +1,5 @@
-module github.com/sysread/skewer
+module github.com/sysread/skewer/v0.0.1
 
 go 1.15
 
-// go: no requirements found in Gopkg.lock
+require github.com/sysread/skewer v0.0.1
