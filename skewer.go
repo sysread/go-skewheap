@@ -1,3 +1,5 @@
+// Package skewer - a mergable priority queue
+//
 // Skew heaps implement a priority queue (min heap) using a binary heap which
 // is continually rebalanced with each Put and Take operation.  Skew heaps have
 // an ammortized performance slighter better than O(log n).
@@ -16,9 +18,10 @@ import "fmt"
 import "sort"
 import "sync"
 
-// The SkewHeap can queue any item that can provide a relative priority value
-// by implementing the Priority() method. A lower value indicates a higher
-// priority in the queue.
+// SkewItem requires any queueable value to be wrapped in an
+// interface which can provide a relative priority for the value
+// when compared to another value. A lower value indicates a
+// higher priority in the queue.
 type SkewItem interface {
 	Priority() int
 }
@@ -38,7 +41,7 @@ type SkewHeap struct {
 	root  *node
 }
 
-// Returns the number of items in the queue.
+// Size returns the number of items in the queue.
 func (heap SkewHeap) Size() int { return heap.size }
 
 // Sort interface
@@ -48,7 +51,7 @@ func (a byPriority) Len() int           { return len(a) }
 func (a byPriority) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a byPriority) Less(i, j int) bool { return a[i].priority() < a[j].priority() }
 
-// Initializes and returns a new *SkewHeap.
+// New initializes and returns a new *SkewHeap.
 func New() *SkewHeap {
 	heap := &SkewHeap{
 		size:  0,
@@ -89,8 +92,8 @@ func (node node) explain(depth int) {
 	}
 }
 
-// Debugging routine that emits a description of the skew heap and its internal
-// structure to stdout.
+// Explain emits a description of the skew heap and its internal structure to
+// stdout.
 func (heap SkewHeap) Explain() {
 	fmt.Printf("Heap<Size:%d>\n", heap.Size())
 	fmt.Printf("-Root:\n")
@@ -164,7 +167,7 @@ func (src *node) copyNode() *node {
 	return newNode
 }
 
-// Non-destructively combines two heaps into a new heap. Note that Merge
+// Merge non-destructively combines two heaps into a new heap. Note that Merge
 // recursively copies the structure of each input heap.
 func (heap SkewHeap) Merge(other SkewHeap) *SkewHeap {
 	ready := make(chan bool, 2)
@@ -204,7 +207,7 @@ func (heap SkewHeap) Merge(other SkewHeap) *SkewHeap {
 	return newHeap
 }
 
-// Inserts a value into the heap.
+// Put inserts a value into the heap.
 func (heap *SkewHeap) Put(value SkewItem) {
 	newNode := &node{
 		left:  nil,
@@ -225,7 +228,7 @@ func (heap *SkewHeap) Put(value SkewItem) {
 	heap.unlock()
 }
 
-// Removes and returns the value with the highest priority from the heap.
+// Take removes and returns the value with the highest priority from the heap.
 func (heap *SkewHeap) Take() (SkewItem, error) {
 	heap.lock()
 
@@ -241,7 +244,7 @@ func (heap *SkewHeap) Take() (SkewItem, error) {
 	return nil, errors.New("empty")
 }
 
-// Returns the value highest priority from the heap without removing it.
+// Top returns the value highest priority from the heap without removing it.
 func (heap *SkewHeap) Top() (SkewItem, error) {
 	if heap.Size() > 0 {
 		return heap.root.value, nil
