@@ -18,34 +18,35 @@ import "fmt"
 import "sort"
 import "sync"
 
-// SkewItem requires any queueable value to be wrapped in an
-// interface which can provide a relative priority for the value
-// when compared to another value. A lower value indicates a
-// higher priority in the queue.
+// SkewItem requires any queueable value to be wrapped in an interface which
+// can provide a relative priority for the value as an integer. A lower value
+// indicates a higher priority in the queue.
 type SkewItem interface {
 	Priority() int
 }
 
-type node struct {
-	left, right *node
+type skewNode struct {
+	left, right *skewNode
 	value       SkewItem
 }
 
-func (n node) priority() int { return n.value.Priority() }
+func (node skewNode) priority() int {
+	return node.value.Priority()
+}
 
 // SkewHeap is the base interface type
 type SkewHeap struct {
-	// The number of items in the queue.
+	// The number of items in the queue
 	size  int
 	mutex *sync.Mutex
-	root  *node
+	root  *skewNode
 }
 
 // Size returns the number of items in the queue.
 func (heap SkewHeap) Size() int { return heap.size }
 
 // Sort interface
-type byPriority []*node
+type byPriority []*skewNode
 
 func (a byPriority) Len() int           { return len(a) }
 func (a byPriority) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
@@ -75,7 +76,7 @@ func indent(depth int) {
 
 // Debugging routine that emits a description of the node and its internal
 // structure to stdout.
-func (node node) explain(depth int) {
+func (node skewNode) explain(depth int) {
 	indent(depth)
 	fmt.Printf("Node<value:%v, priority:%d>\n", node.value, node.priority())
 
@@ -106,7 +107,7 @@ func (heap SkewHeap) Explain() {
 }
 
 // Merges two nodes destructively
-func (heap *node) merge(other *node) *node {
+func (heap *skewNode) merge(other *skewNode) *skewNode {
 	if heap == nil {
 		return other
 	}
@@ -117,8 +118,8 @@ func (heap *node) merge(other *node) *node {
 
 	// Cut the right subtree from each path and store the remaining left subtrees
 	// in nodes.
-	todo := []*node{heap, other}
-	nodes := []*node{}
+	todo := [](*skewNode){heap, other}
+	nodes := [](*skewNode){}
 
 	for len(todo) > 0 {
 		node := todo[0]
@@ -136,7 +137,7 @@ func (heap *node) merge(other *node) *node {
 	sort.Sort(byPriority(nodes))
 
 	// Recombine subtrees
-	var node *node
+	var node *skewNode
 
 	for len(nodes) > 1 {
 		node, nodes = nodes[len(nodes)-1], nodes[:len(nodes)-1]
@@ -153,12 +154,12 @@ func (heap *node) merge(other *node) *node {
 }
 
 // Recursively copies a node and its children
-func (src *node) copyNode() *node {
+func (src *skewNode) copyNode() *skewNode {
 	if src == nil {
 		return nil
 	}
 
-	newNode := &node{
+	newNode := &skewNode{
 		value: src.value,
 		left:  src.left.copyNode(),
 		right: src.right.copyNode(),
@@ -172,7 +173,7 @@ func (src *node) copyNode() *node {
 func (heap SkewHeap) Merge(other SkewHeap) *SkewHeap {
 	ready := make(chan bool, 2)
 
-	var rootA, rootB *node
+	var rootA, rootB *skewNode
 	var sizeA, sizeB int
 
 	// Because each heap may be used by other go routines, locking their mutexes
@@ -209,7 +210,7 @@ func (heap SkewHeap) Merge(other SkewHeap) *SkewHeap {
 
 // Put inserts a value into the heap.
 func (heap *SkewHeap) Put(value SkewItem) {
-	newNode := &node{
+	newNode := &skewNode{
 		left:  nil,
 		right: nil,
 		value: value,
