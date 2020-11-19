@@ -1,7 +1,5 @@
 # skewer
 
-[![Build Status](https://travis-ci.org/sysread/skewer.svg?branch=master)](https://travis-ci.org/sysread/skewer)
-[![codecov](https://codecov.io/gh/sysread/skewer/branch/master/graph/badge.svg)](https://codecov.io/gh/sysread/skewer)
 [![GoDoc](https://img.shields.io/badge/pkg.go.dev-doc-blue)](http://pkg.go.dev/github.com/sysread/skewer)
 
 Package skewer - a mergable priority queue
